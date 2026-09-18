@@ -1,0 +1,31 @@
+name: Import project archive
+
+on:
+  push:
+    paths:
+      - codex-upload.zip
+      - .github/workflows/unpack.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Unpack project and clean temporary files
+        run: |
+          unzip -o codex-upload.zip -d .
+          rm -f codex-upload.zip .repository-init
+          rm -f .github/workflows/unpack.yml
+
+      - name: Commit imported project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Import project files"
+          git push
